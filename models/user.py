@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, DateTime, Text
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from sqlalchemy.dialects.postgresql import ARRAY
 from core.database import Base
@@ -16,3 +17,4 @@ class User(Base):
     profile_pic = Column(Text, nullable=True)
     location = Column(String, nullable=True)
     interests = Column(ARRAY(String), nullable=True)
+    oauth_accounts = relationship("OAuth", back_populates="user")
