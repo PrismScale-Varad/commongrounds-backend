@@ -1,0 +1,22 @@
+meta {
+  name: Create Chat
+  type: http
+  seq: 8
+}
+
+post {
+  url: http://localhost:8000/api/v1/chat/
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqYW5lLmRvZUBleGFtcGxlLmNvbSIsImV4cCI6MTc1ODUyMjU5NH0.tldRLX0vX96qjn-El2ZxzQ6uJ5We28kL3v0LurjMmSw
+}
+
+body:json {
+  {
+    "message": "Hi, I need help with my project."
+  }
+  
+}

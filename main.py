@@ -4,7 +4,7 @@ from core.config import settings
 from core.config import logger
 from core.middleware import AuthMiddleware
 from core.database import init_db
-from routes import auth
+from routes import auth, chat
 
 init_db()
 
@@ -26,6 +26,7 @@ app.add_middleware(AuthMiddleware)
 
 # Routes
 app.include_router(auth.router, prefix=settings.prefix)
+app.include_router(chat.router, prefix=settings.prefix)
 
 # Health check endpoint using HEAD method
 @app.head("/")

@@ -39,6 +39,6 @@ def init_db():
     """
     logger.info("Initializing database")
     # Import models to register them on the Base metadata
-    import models.user  # Add additional model imports if necessary
+    from models import user, oauth, chat # Add additional model imports if necessary
     Base.metadata.create_all(bind=engine)
     logger.info("Database initialized")

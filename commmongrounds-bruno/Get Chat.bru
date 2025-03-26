@@ -1,0 +1,15 @@
+meta {
+  name: Get Chat
+  type: http
+  seq: 9
+}
+
+get {
+  url: http://localhost:8000/api/v1/chat/2
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqYW5lLmRvZUBleGFtcGxlLmNvbSIsImV4cCI6MTc1ODUyMjU5NH0.tldRLX0vX96qjn-El2ZxzQ6uJ5We28kL3v0LurjMmSw
+}
