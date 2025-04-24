@@ -57,3 +57,5 @@ Thumbs.db
 
 # Static files (if generated and not needed in repo)
 staticfiles/
+
+cli.py
