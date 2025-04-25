@@ -1,14 +1,19 @@
-def generate_chat_title(message: str) -> str:
-    """
-    Generate a chat title using the first few words of the first message.
-    """
-    words = message.split()
-    title = " ".join(words[:5]) if len(words) >= 5 else message
-    return title
+import openai
+from core.config import settings
+import logging
 
-def generate_llm_response(chat) -> str:
-    """
-    Generate a placeholder LLM response.
-    In production, integrate with an LLM API.
-    """
-    return "This is a placeholder LLM response."
+logger = logging.getLogger(__name__)
+
+openai.api_key = settings.OPENAI_API_KEY
+
+def generate_llm_response(message: str) -> str:
+    try:
+        response = openai.ChatCompletion.create(
+            model='gpt-3.5-turbo',  # or any other model you prefer
+            messages=[{'role': 'user', 'content': message}],
+            max_tokens=150  # adjust as per your needs
+        )
+        return response['choices'][0]['message']['content'].strip()
+    except Exception as e:
+        logger.error(f'Error while calling OpenAI API: {str(e)}')
+        return "I'm sorry, I couldn't generate a response at the moment."
