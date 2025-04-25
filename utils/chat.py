@@ -7,6 +7,7 @@ logger = logging.getLogger(__name__)
 api_key = settings.OPENAI_API_KEY
 openai = OpenAI(api_key)
 
+
 def generate_llm_response(chat):
     """
     Calls OpenAI's GPT-3.5-turbo model to generate a response based on the chat's messages.
@@ -16,6 +17,10 @@ def generate_llm_response(chat):
     try:
         # Prepare messages in the format expected by OpenAI
         messages = []
+        # Add system prompt from config
+        system_prompt = settings.SYSTEM_PROMPT
+        messages.append({'role': 'system', 'content': system_prompt})
+
         for message in chat.messages:
             role = 'user' if message.sender == 'user' else 'assistant'
             messages.append({'role': role, 'content': message.message})
