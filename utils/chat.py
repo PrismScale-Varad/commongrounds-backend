@@ -1,17 +1,24 @@
-import openai
+from openai import OpenAI 
 from core.config import settings
 import logging
 
 logger = logging.getLogger(__name__)
 
-openai.api_key = settings.OPENAI_API_KEY
+api_key = settings.OPENAI_API_KEY
+openai = OpenAI(api_key)
 
-def generate_llm_response(message: str) -> str:
+def generate_llm_response(chat):
     try:
+        # Prepare messages in the format expected by OpenAI
+        messages = []
+        for message in chat.messages:
+            role = 'user' if message.sender == 'user' else 'assistant'
+            messages.append({'role': role, 'content': message.message})
+
         response = openai.ChatCompletion.create(
-            model='gpt-3.5-turbo',  # or any other model you prefer
-            messages=[{'role': 'user', 'content': message}],
-            max_tokens=150  # adjust as per your needs
+            model='gpt-3.5-turbo',
+            messages=messages,
+            max_tokens=150
         )
         return response['choices'][0]['message']['content'].strip()
     except Exception as e:
