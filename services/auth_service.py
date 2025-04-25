@@ -18,6 +18,8 @@ def create_user(user_create: UserCreate, db: Session) -> User:
         profile_pic=user_create.profile_pic,
         location=user_create.location,
         interests=user_create.interests,
+        bio=user_create.bio,
+        profession=user_create.profession,
     )
     db.add(new_user)
     db.commit()

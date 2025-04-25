@@ -8,6 +8,8 @@ class UserCreate(BaseModel):
     interests: List[str]
     profile_pic: Optional[str] = None
     location: Optional[str] = None
+    bio: Optional[str] = None  # Max ~500 words
+    profession: Optional[str] = None  # Max ~500 words
 
     class Config:
         from_attributes = True
@@ -19,6 +21,8 @@ class UserResponse(BaseModel):
     profile_pic: Optional[str] = None
     location: Optional[str] = None
     interests: Optional[List[str]] = None
+    bio: Optional[str] = None
+    profession: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -29,6 +33,8 @@ class UserUpdate(BaseModel):
     profile_pic: Optional[str] = None
     location: Optional[str] = None
     interests: Optional[List[str]] = None
+    bio: Optional[str] = None  # Max ~500 words
+    profession: Optional[str] = None  # Max ~500 words
 
     class Config:
         from_attributes = True
