@@ -23,7 +23,12 @@ def get_db():
 
 @contextmanager
 def get_db_context():
-    """Dependency to get a database session."""
+    """
+    Dependency to get a database session.
+
+    This context manager yields a session that should be used within a
+    with-statement block to ensure proper opening and closing.
+    """
     logger.info("Opening new database session (context manager)")
     db = SessionLocal()
     try:
@@ -35,10 +40,15 @@ def get_db_context():
 def init_db():
     """
     Initializes the database by creating all tables.
-    Import your models here to ensure they are registered with the metadata.
+    
+    This function imports your SQLAlchemy models to ensure they are
+    registered with the Base metadata and then creates all tables
+    according to the metadata.
+
+    This should be called during application startup.
     """
     logger.info("Initializing database")
     # Import models to register them on the Base metadata
-    from models import user, oauth, chat # Add additional model imports if necessary
+    from models import user, oauth, chat  # Add additional model imports if necessary
     Base.metadata.create_all(bind=engine)
     logger.info("Database initialized")

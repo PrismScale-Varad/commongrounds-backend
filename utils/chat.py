@@ -8,6 +8,11 @@ api_key = settings.OPENAI_API_KEY
 openai = OpenAI(api_key)
 
 def generate_llm_response(chat):
+    """
+    Calls OpenAI's GPT-3.5-turbo model to generate a response based on the chat's messages.
+    Constructs a messages list in the expected format, sends it to the API, and returns the assistant's reply.
+    Logs and returns a default message if an error occurs.
+    """
     try:
         # Prepare messages in the format expected by OpenAI
         messages = []

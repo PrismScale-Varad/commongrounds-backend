@@ -7,24 +7,26 @@ from models.user import User
 from core.database import SessionLocal
 
 class AuthMiddleware(BaseHTTPMiddleware):
+    """
+    Middleware to handle authentication via Bearer tokens in the Authorization header.
+    It validates JWT tokens and attaches the authenticated user to the request state.
+    """
     async def dispatch(self, request: Request, call_next) -> Response:
         # Skip processing for excluded routes
         if request.url.path in EXCLUDED_ROUTES:
             return await call_next(request)
 
-        # Get the Authorization header (expects "Bearer <token>")
-        auth_header = request.headers.get("Authorization")
-        if auth_header:
-            parts = auth_header.split()
+        authorization_header = request.headers.get("Authorization")
+        if authorization_header:
+            parts = authorization_header.split()
             if len(parts) == 2 and parts[0].lower() == "bearer":
                 token = parts[1]
-                payload = decode_access_token(token)
-                if payload and "sub" in payload:
-                    db = SessionLocal()
+                token_payload = decode_access_token(token)
+                if token_payload and "sub" in token_payload:
+                    db_session = SessionLocal()
                     try:
-                        user = db.query(User).filter(User.email == payload["sub"]).first()
+                        user = db_session.query(User).filter(User.email == token_payload["sub"]).first()
                         if user:
-                            # Check if the token matches the active token in the user record
                             if user.active_token != token:
                                 logger.warning("Active token mismatch. Session expired.")
                                 return JSONResponse(
@@ -40,7 +42,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
                         logger.error(f"Error retrieving user: {e}")
                         request.state.user = None
                     finally:
-                        db.close()
+                        db_session.close()
                 else:
                     logger.warning("Token payload invalid or missing 'sub' claim")
                     request.state.user = None

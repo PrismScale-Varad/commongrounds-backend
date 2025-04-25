@@ -5,19 +5,24 @@ from passlib.context import CryptContext
 from pydantic_settings import BaseSettings
 from dotenv import load_dotenv
 
+# Load environment variables from .env file
 load_dotenv()
 
-class Settings(BaseSettings):    
+class Settings(BaseSettings):
+    """
+    Configuration settings loaded from environment variables.
+    Contains API prefixes, CORS settings, database URL, JWT settings, OAuth client settings, and security keys.
+    """
     # API Route prefix
     prefix: str="/api/v1"
 
-    # CORS
+    # CORS origins loaded from environment variable as JSON list
     cors_origins: list[str] = json.loads(os.getenv("ORIGINS"))
 
-    # Database settings
+    # Database connection URL
     database_url: str = "localhost:5432/mydb"
 
-    # JWT
+    # JWT configuration
     jwt_expiry_days: int = 180
     ALGORITHM: str = "HS256"
 
@@ -36,18 +41,23 @@ class Settings(BaseSettings):
     # Security settings (add more as needed)
     secret_key: str = os.getenv("SECRET")
 
+# Instantiate global settings object
 settings = Settings()
 
+# Configure logging for the application
 logging.basicConfig(
     level="INFO",
     format="%(asctime)s - [%(levelname)s] - %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S"
 )
 
+# Logger instance for this module
 logger = logging.getLogger(__name__)
 
+# Password hashing context using bcrypt
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+# Set of API routes that do not require authentication
 EXCLUDED_ROUTES = {
     "/",
     "/api/v1/auth/login",
@@ -58,6 +68,5 @@ EXCLUDED_ROUTES = {
     "/openapi.json",
 }
 
-
-# OpenAI API
+# OpenAI API key from environment
 OPENAI_API_KEY: str = os.getenv('OPENAI_API_KEY', '')
