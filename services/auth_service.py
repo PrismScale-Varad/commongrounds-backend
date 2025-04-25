@@ -6,11 +6,31 @@ from models.user import User
 from schemas.user import UserCreate, UserUpdate
 from core.security import get_password_hash, create_access_token, decode_access_token
 
+from sentence_transformers import SentenceTransformer
+import numpy as np
+
+# Load sentence-transformers model once
+model = SentenceTransformer('all-MiniLM-L6-v2')
+
+VECTOR_DIM = 384  # Dimension for all-MiniLM-L6-v2
+
+
+def generate_embedding(text: str) -> list[float]:
+    if not text:
+        return None
+    embedding = model.encode(text)
+    return embedding.tolist()
+
+
 def create_user(user_create: UserCreate, db: Session) -> User:
     """
     Create a new user in the database.
     """
     hashed_password = get_password_hash(user_create.password)
+
+    bio_embedding = generate_embedding(user_create.bio) if user_create.bio else None
+    profession_embedding = generate_embedding(user_create.profession) if user_create.profession else None
+
     new_user = User(
         email=user_create.email,
         hashed_password=hashed_password,
@@ -20,6 +40,8 @@ def create_user(user_create: UserCreate, db: Session) -> User:
         interests=user_create.interests,
         bio=user_create.bio,
         profession=user_create.profession,
+        bio_embedding=bio_embedding,
+        profession_embedding=profession_embedding
     )
     db.add(new_user)
     db.commit()
@@ -27,18 +49,27 @@ def create_user(user_create: UserCreate, db: Session) -> User:
     logger.info(f"Created new user: {new_user.email}")
     return new_user
 
+
 def update_user(user: User, user_update: UserUpdate, db: Session) -> User:
     """
     Update an existing user in the database.
     Only fields provided in the update schema will be modified.
     """
+
     update_data = user_update.dict(exclude_unset=True)
+
+    if "bio" in update_data:
+        update_data["bio_embedding"] = generate_embedding(update_data["bio"])
+    if "profession" in update_data:
+        update_data["profession_embedding"] = generate_embedding(update_data["profession"])
+
     for key, value in update_data.items():
         setattr(user, key, value)
     db.commit()
     db.refresh(user)
     logger.info(f"Updated user: {user.email}")
     return user
+
 
 def generate_password_reset_token(user: User, db: Session, expires_in_hours: int = 1) -> str:
     """
@@ -53,6 +84,7 @@ def generate_password_reset_token(user: User, db: Session, expires_in_hours: int
     db.commit()
     logger.info(f"Generated password reset token for user: {user.email}")
     return token
+
 
 def reset_password(token: str, new_password: str, db: Session) -> bool:
     """

@@ -1,10 +1,12 @@
-from sqlalchemy import Column, Integer, String, DateTime, Text
+from sqlalchemy import Column, Integer, String, DateTime, Text, Float
 from sqlalchemy.orm import relationship, validates
 from sqlalchemy.sql import func
 from sqlalchemy.dialects.postgresql import ARRAY
 from core.database import Base
 
 MAX_WORDS = 500
+
+VECTOR_DIM = 1536  # Example dimension for embedding vector
 
 def count_words(text: str) -> int:
     if not text:
@@ -26,6 +28,8 @@ class User(Base):
     interests = Column(ARRAY(String), nullable=True)
     bio = Column(Text, nullable=True)  # User biography, max 500 words
     profession = Column(Text, nullable=True)  # User profession description, max 500 words
+    bio_embedding = Column(ARRAY(Float), nullable=True)  # Embedding vector for bio
+    profession_embedding = Column(ARRAY(Float), nullable=True)  # Embedding vector for profession
     oauth_accounts = relationship("OAuth", back_populates="user")
 
     @validates('bio')
