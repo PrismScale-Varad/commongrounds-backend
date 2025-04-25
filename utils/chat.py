@@ -25,6 +25,26 @@ user_search_function = {
     }
 }
 
+def generate_chat_title(text: str) -> str:
+    """
+    Generate a concise chat title using the given text input by calling OpenAI's GPT model.
+    """
+    try:
+        prompt = f"Create a concise and descriptive title for the following conversation text:\n\n{text}\n\nTitle:" 
+        response = openai.ChatCompletion.create(
+            model='gpt-3.5-turbo',
+            messages=[{'role': 'user', 'content': prompt}],
+            max_tokens=15,
+            temperature=0.5,
+            n=1
+        )
+        choice = response['choices'][0]
+        title = choice['message']['content'].strip().strip('"')
+        return title
+    except Exception as e:
+        logger.error(f'Error generating chat title: {str(e)}')
+        return "New Chat"
+
 def generate_llm_response(chat):
     """
     Calls OpenAI's GPT-3.5-turbo model with function calling support to generate a response based on the chat's messages.
