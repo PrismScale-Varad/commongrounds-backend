@@ -63,9 +63,6 @@ def create_message(db: Session, chat: Chat, message: str) -> Tuple[Message, Mess
 
 
 def stream_message_response(db: Session, chat: Chat, message: str) -> Generator[str, None, None]:
-    """
-    Stream response from LLM as generator yielding partial texts.
-    """
     user_msg = Message(
         chat_id=chat.id,
         sender="user",
@@ -75,21 +72,27 @@ def stream_message_response(db: Session, chat: Chat, message: str) -> Generator[
     db.commit()
     db.refresh(user_msg)
 
-    # Yield tokens from streaming function
-    llm_response_text = ""
+    assistant_msg = None
+    collected_text = ""
+
     for chunk in stream_llm_response(chat, message):
-        llm_response_text += chunk
+        collected_text += chunk
+
+        # Create assistant message if not present, else update
+        if assistant_msg is None:
+            assistant_msg = Message(
+                chat_id=chat.id,
+                sender="assistant",
+                message=collected_text
+            )
+            db.add(assistant_msg)
+        else:
+            assistant_msg.message = collected_text
+
+        db.commit()
+        db.refresh(assistant_msg)
+
         yield chunk
 
-    # Save assistant message after streaming completes
-    assistant_msg = Message(
-        chat_id=chat.id,
-        sender="assistant",
-        message=llm_response_text
-    )
-    db.add(assistant_msg)
-    db.commit()
-    db.refresh(assistant_msg)
-
-    # Also yield a terminator indicator
+    # Yield a terminator indicator
     yield "[DONE]"
